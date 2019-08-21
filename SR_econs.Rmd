@@ -1,0 +1,276 @@
+
+---
+fontsize: 22pt
+output:
+  html_document:
+    toc: no
+    toc_float: yes
+  word_document:
+    toc: yes
+  pdf_document:  
+    toc: yes
+    toc_depth: 3
+font-family: Arial
+theme: united
+title: '**Economic burden of mental disorders : a systematic review**'
+---
+<hr>
+<br>
+
+<style>
+  
+#TOC {
+ position: fixed;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100%;
+  overflow:auto;
+}
+body {
+  max-width: 1200px;
+  margin: auto;
+  margin-left:150px;
+  line-height: 20px;
+}
+h1.title {
+    font-size: 28px;
+}
+h4 {
+    font-size: 20px;
+}
+h3 {
+    font-size: 24px;
+}
+h2 {
+    font-size: 25px;
+}
+h1 {
+    font-size: 26px;
+}
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 28%;
+}
+.table {
+    width: 40%;
+}
+
+.btn {
+    border-width: 0 0px 0px 0px;
+    font-weight: normal;
+    text-transform: ;
+}
+.btn-default {
+    color: #2ecc71;
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+</style>
+
+\vspace{20mm}
+
+**Report date:** 16 August 2019
+<br>
+<br>
+**RMD Author:** C. Lim
+<br>
+<br>
+**Note:** This is a draft based on a test dataset. Not ready for distribution yet.
+<br>
+<br>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+setwd("/Users/carmenlim/Dropbox")
+#library(PRISMAstatement)
+library(DT)
+library(ggplot2)
+library(ggmap)
+library(maps)
+library(RColorBrewer)
+library(mapdata)
+library(plotly)
+ 
+ 
+#Dataset
+map <- read.csv("map.csv")
+
+```
+
+<br>
+<br>
+
+## **Review question ** 
+<hr>
+
+To identify cost-of-illness studies for mental disorders and to explore the distribution of the costs between disorders. Included studies will be assessed for methodology, years/period of study, geographical locations, subgroups and study quality. While we do not predict that results of the review will be suitable for pooling by traditional meta-analytic techniques, we will explore methods to display the data graphically.
+Link to the study protocol available [here.](https://www.crd.york.ac.uk/prospero/display_record.php?RecordID=127783) 
+ 
+<br>
+<br>
+<br>
+ 
+## **Inclusion and exclusion criteria**
+<hr>
+
+**Inclusion criteria:**  
+
+- Cost-of-illness studies focusing on mental disorders (one or more types) will be included in this study.
+- The study designs included are **cross-sectional, retrospective, prospective, modelling**.
+- Each study must be from a **societal or health care perspective.**
+- Study must **report estimates on a national or subnational level** in monetary terms with standard errors or other related metrics to measure uncertainty. The included studies must report the **different costs categories and data sources used.**
+- Studies conducted between **1980 till 2019.**
+
+<br>
+<br>
+
+**Exclusion criteria:**
+
+- abstract, commentary, letter to the editor
+- not original data (i.e. review, systematic reviews and editorials)- which should have been excluded at TIAB stag. 
+- no published diagnostic criteria
+- population not representative
+    - (single program on substance abuse in Florida, sample from a single aged care, veterans,  one insurance database unless it is a national insurance database etc)
+- no cost quoted in the results section
+- study is solely cost-effectiveness, cost-utility or cost-benefit evaluations
+- PDF could not be located
+
+ <br>
+ <br>
+ <br>
+ 
+## **Number of studies from each database**
+<hr>
+<br>
+
+
+Database | Number of hits |
+---------|----------------|
+Pubmed | 11,201 |
+PsychInfo | 2,807 |
+Web of Science | 2,610 |
+Embase | 2,196 |
+NHS York | 6 |
+EconLIT | 0 |
+**Total** | **18,820**|
+
+
+<br>
+<br>
+
+
+## **PRISMA flow chart**
+<br>
+<br>
+
+```{r fig1, echo=FALSE, out.width = '70%', out.height= '70%'}
+knitr::include_graphics("prisma.png")
+```
+
+<br>
+<br>
+<br>
+
+## **Dataset**
+<hr>
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+datatable(map[,c(2,5:9)], colnames = c('year' = 'year_published'), rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T) )
+```
+ 
+<br>
+<br>
+<br>
+ 
+## **Assumptions made during data extraction**
+<hr>
+
+
+* If no study type was stated in the study: a decision on study type was made based on methodological description.
+* If no perspective was stated in the study: a health system perspective was adopted, if no indirect costs were assessed and societal perspective was adopted, if indirect costs were assessed.
+
+<br>
+<br>
+<br>
+<br>
+
+## **Global COI Studies**
+<hr>
+
+```{r fig2, echo = FALSE, warning = FALSE, message = FALSE}
+
+require(viridis)
+m <- list(
+  l = 50,
+  r = 50,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+#geo styling
+g <- list(
+  scope = 'world',
+  projection = list(type = 'Mercator'),
+  showframe = FALSE,
+  showland = TRUE,
+  landcolor = toRGB("gray95"),
+  subunitcolor = toRGB("gray85"),
+  countrycolor = toRGB("gray85"),
+  countrywidth = 0.9,
+  subunitwidth = 0.5,
+  showcoastlines = F
+)
+p <- plot_geo(map, lat = ~lat, lon = ~lon) %>%
+  add_markers(
+      text = ~paste('</br>Author: ', author, '</br> Country: ', country,'</br> Journal: ', journal, '</br> Year: ', year_published, '</br> Disorder: ', disorder), hoverinfo = "text",symbol = I("circle"),size = I(8), color = ~disorder, colors = viridis::magma(5)
+  ) %>%   
+  layout(
+    title = 'Distribution of studies',
+    autosize = F, width = 900, height = 600, margin = m,
+    geo = g ,
+    showlegend = TRUE
+  )
+  
+p
+
+```
+<br>
+<br>
+<br>
+ 
+```{r fig3, echo = FALSE, warning = FALSE, fig.height = 4, fig.width = 6}
+#need to fix
+a<- ggplot(map, aes(x = year_published)) +
+  geom_dotplot(binwidth =0.8, method = 'histodot') + theme_bw() + 
+  scale_y_continuous(NULL, breaks = NULL) +
+  ggtitle("Year of publication") + 
+  theme(plot.title = element_text(hjust = 0.5))
+  mytext=paste("Author = ", map$author, "\n", "Year = ", map$year_published, "\n" , "Country = ", map$country, "\n", "Disorder = ", map$disorder,  sep="")    
+pp=ggplotly(a)   
+style( pp, text=mytext, hoverinfo = "text" )
+```
+
+<br>
+<br>
+
+
+```{r fig4, echo = FALSE, warning = FALSE, fig.height = 4, fig.width = 8}
+ 
+a<- ggplot(map, aes(x = year_published, y = disorder, size = directcost)) +
+  geom_point(aes(col= indirectcost),alpha=0.8) +
+  scale_colour_gradient(low = "orange", high = "purple") +
+  ggtitle("not sure yet -- need to think ") + 
+  theme(plot.title = element_text(hjust = 0.5))
+  mytext=paste("Author = ", map$author, "\n", "Year = ", map$year_published, "\n" , "Country = ", map$country, "\n", "Disorder = ", map$disorder,  sep="")    
+pp=ggplotly(a)   
+style( pp, text=mytext, hoverinfo = "text" )
+```
+
+<br>
+<br>
+ 
